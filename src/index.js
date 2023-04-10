@@ -8,6 +8,7 @@ import { ThemeProvider } from "@mui/system";
 import theme from "./theme";
 
 ReactDOM.render(
+  <BrowserRouter>
   <React.StrictMode>
         <SnackbarProvider
           maxSnack={1}
@@ -19,6 +20,7 @@ ReactDOM.render(
         >
           <App />
         </SnackbarProvider>
-  </React.StrictMode>,
+  </React.StrictMode>
+  </BrowserRouter>,
    document.getElementById('root')
 );

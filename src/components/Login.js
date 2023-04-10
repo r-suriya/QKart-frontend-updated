@@ -1,3 +1,4 @@
+import { WindowSharp } from "@mui/icons-material";
 import { Button, CircularProgress, Stack, TextField } from "@mui/material";
 import { Box } from "@mui/system";
 import axios from "axios";
@@ -8,6 +9,7 @@ import { config } from "../App";
 import Footer from "./Footer";
 import Header from "./Header";
 import "./Login.css";
+import Register from "./Register";
 
 const Login = () => {
   const { enqueueSnackbar } = useSnackbar();
@@ -37,7 +39,36 @@ const Login = () => {
    * }
    *
    */
+
+  const [userInformation, setUserInformation] = useState({username: "", password: ""});
+  const history = useHistory();
+
+
   const login = async (formData) => {
+    if(validateInput(formData)){
+
+    try{
+    //console.log(formData);
+    var res = await axios.post(`${config.endpoint}/auth/login`,formData);//.then((response)=>{})
+    if(res.status === 201){
+    console.log(res);
+    persistLogin(res.data.token, res.data.username, res.data.balance);
+    enqueueSnackbar("Logged in successfully", {variant: "success"});
+    history.push('/');
+    }
+    }
+
+    catch(error){
+      //console.log(error+" hi");
+      if(error.response.status === 400)
+      enqueueSnackbar(error.response.data.message,{variant:"error"});
+      else
+      enqueueSnackbar("Something went wrong. Check that the backend is running, reachable and returns valid JSON.", {variant:"error"});
+
+    }
+  }
+    
+    
   };
 
   // TODO: CRIO_TASK_MODULE_LOGIN - Validate the input
@@ -56,6 +87,22 @@ const Login = () => {
    * -    Check that password field is not an empty value - "Password is a required field"
    */
   const validateInput = (data) => {
+
+    if(data.username.length === 0)
+    {
+      enqueueSnackbar("Username is a required field", {variant:"error"});
+      return 0;
+    }
+
+    if(data.password.length === 0)
+    {
+      enqueueSnackbar("Password is a required field", {variant:"error"});
+      return 0;
+    }
+
+
+    return 1;
+
   };
 
   // TODO: CRIO_TASK_MODULE_LOGIN - Persist user's login information
@@ -75,6 +122,9 @@ const Login = () => {
    * -    `balance` field in localStorage can be used to store the balance amount in the user's wallet
    */
   const persistLogin = (token, username, balance) => {
+    window.localStorage.setItem('token', token);
+    window.localStorage.setItem('username', username);
+    window.localStorage.setItem('balance', balance);
   };
 
   return (
@@ -84,9 +134,39 @@ const Login = () => {
       justifyContent="space-between"
       minHeight="100vh"
     >
-      <Header hasHiddenAuthButtons />
+      <Header hasHiddenAuthButtons={true} />
       <Box className="content">
         <Stack spacing={2} className="form">
+        <h2 className="title">Login</h2>
+          <TextField
+            id="username"
+            label="Username"
+            variant="outlined"
+            title="Username"
+            name="username"
+            placeholder="Enter Username"
+            fullWidth
+            onChange={(event)=>setUserInformation({...userInformation, username: event.target.value})}
+          />
+          <TextField
+            id="password"
+            variant="outlined"
+            label="Password"
+            name="password"
+            type="password"
+            fullWidth
+            placeholder="Enter password"
+            onChange={(event)=> setUserInformation({...userInformation, password: event.target.value})}
+          />
+          <Button className="button" variant="contained" onClick={()=>login(userInformation)}>
+            Login to Qkart
+           </Button>
+          <p className="secondary-action">
+            Don't have an account?{" "}
+             <a className="link" href="Register.js">
+              Register now
+             </a>
+          </p>
         </Stack>
       </Box>
       <Footer />

@@ -8,7 +8,7 @@ import { config } from "../App";
 import Footer from "./Footer";
 import Header from "./Header";
 import "./Register.css";
-import { useHistory, Link } from "react-router-dom";
+import { useHistory, Link, Redirect } from "react-router-dom";
 
 const Register = () => {
   const { enqueueSnackbar } = useSnackbar();
@@ -40,6 +40,7 @@ const Register = () => {
 
   const [userInformation, setUserInformation] = useState({username: "", password: "", confirmPassword: ""});
   const [loading, setLoading] = useState(false);
+  const history = useHistory();
 
   const register = async (formData) => {
     console.log(formData);
@@ -67,7 +68,8 @@ const Register = () => {
           case 5:
             var res = await axios.post(`${config.endpoint}/auth/register`, {username: formData.username, password: formData.password});
             if(res.status === 201)
-            enqueueSnackbar("Registered successfully", {variant:"success"});
+            enqueueSnackbar("Registered successfully", {variant:"success"});//use then here
+            history.push('/login');
             break;
           default:
             break;
@@ -175,7 +177,7 @@ const Register = () => {
       justifyContent="space-between"
       minHeight="100vh"
     >
-      <Header hasHiddenAuthButtons />
+      <Header hasHiddenAuthButtons={true} />
       <Box className="content">
         <Stack spacing={2} className="form">
           <h2 className="title">Register</h2>
@@ -215,7 +217,7 @@ const Register = () => {
            {button}
           <p className="secondary-action">
             Already have an account?{" "}
-             <a className="link" href="#">
+             <a className="link" href="Login.js">
               Login here
              </a>
           </p>
