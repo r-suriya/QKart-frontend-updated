@@ -7,6 +7,8 @@ import "./Header.css";
 import {Link} from "react-router-dom";
 import { WindowSharp } from "@mui/icons-material";
 
+import {TextField,} from "@mui/material";
+
 const Header = ({ children, hasHiddenAuthButtons }) => {
 
 const [isLoggedOut, setIsLoggedOut] = useState(false);
@@ -38,6 +40,7 @@ localStorage.clear();
         <Box className="header-title">
         <img src="logo_light.svg" alt="QKart-icon"></img>
         </Box>
+        {children}
         <Stack direction={"row"} spacing={2}>
             <img src="avatar.png" alt={localStorage.getItem('username')} />
             <div>{localStorage.getItem("username")}</div>
@@ -59,6 +62,7 @@ localStorage.clear();
         <Box className="header-title">
             <img src="logo_light.svg" alt="QKart-icon"></img>
         </Box>
+        {children}
         <Stack direction={"row"} spacing={2}>
         <Link style={{textDecoration: 'none'}} to={"/login"}>
           <Button className="button" variant="contained">

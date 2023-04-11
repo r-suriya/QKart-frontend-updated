@@ -42,6 +42,7 @@
   justify-content: center;
   width: 100%;
   height: 50vh;
+  color: #00a278 !important;
 }
 
 .search-mobile {
@@ -49,7 +50,9 @@
 }
 
 .search-desktop {
-  display: none !important;
+  display:block !important;
+  width: 30% !important;
+  text-align: center;
 }
 
 @media screen and (min-width: 768px) {

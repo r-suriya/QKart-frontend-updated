@@ -43,7 +43,7 @@ const Register = () => {
   const history = useHistory();
 
   const register = async (formData) => {
-    console.log(formData);
+    //console.log(formData);
 
     setLoading(true);
     

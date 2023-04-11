@@ -13,7 +13,8 @@ import { config } from "../App";
 import Footer from "./Footer";
 import Header from "./Header";
 import "./Products.css";
-
+import ProductCard from "./ProductCard";
+import { Icon } from "@mui/material";
 // Definition of Data Structures used
 /**
  * @typedef {Object} Product - Data on product available to buy
@@ -66,7 +67,24 @@ const Products = () => {
    *      "message": "Something went wrong. Check the backend console for more details"
    * }
    */
+
+  const [productInfo, setProductInfo] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [notFound, setNotFound] = useState(false);
+  const [debounceTimeout, setDebounceTimeout] = useState(0);
+
   const performAPICall = async () => {
+    try{
+      let temp = await axios.get(`${config.endpoint}/products`);
+    //console.log(temp.data);
+    setIsLoading(false);
+    setProductInfo(temp.data);
+  
+    } catch (error) {
+      console.log(error);
+    }
+    
+    
   };
 
   // TODO: CRIO_TASK_MODULE_PRODUCTS - Implement search logic
@@ -84,6 +102,15 @@ const Products = () => {
    *
    */
   const performSearch = async (text) => {
+    //console.log(text);
+    try{
+      let temp = await axios.get(`${config.endpoint}/products/search?value=${text}`);
+    setProductInfo(temp.data);
+  
+    } catch (error) {
+      setNotFound(true);
+      console.log(error);
+    }
   };
 
   // TODO: CRIO_TASK_MODULE_PRODUCTS - Optimise API calls with debounce search implementation
@@ -99,21 +126,61 @@ const Products = () => {
    *
    */
   const debounceSearch = (event, debounceTimeout) => {
+    if(debounceTimeout)
+    clearTimeout(debounceTimeout);
+
+    let timeOut = setTimeout(() => {
+      performSearch(event); 
+      }, 1000); // Update set timeoutId    
+      setDebounceTimeout(timeOut);
   };
 
 
 
 
 
+  useEffect(()=>{
+    performAPICall();
+  setIsLoading(true)}
+  , []
+  );
 
+  if(isLoading)
+  var append = <div className="loading">
+    <CircularProgress style={{margin:"auto", color:"primary"}}/>
+    <p>Loading Products...</p>
+    </div>
+
+  else if(notFound)
+  var append= <div className="loading"><SentimentDissatisfied />
+  <p>No products found</p></div>
+  else
+  var append = <Grid container spacing={2} padding={2}>
+  <ProductCard product={productInfo} />
+</Grid>
 
   return (
     <div>
 
       <Header hasHiddenAuthButtons={false}>
         {/* TODO: CRIO_TASK_MODULE_PRODUCTS - Display search bar in the header for Products page */}
-
+        <TextField
+        className="search-desktop"
+        size="small"
+        fullWidth
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="center">
+              <Search color="primary" />
+            </InputAdornment>
+          ),
+        }}
+        placeholder="Search for items/categories"
+        name="search"
+        onChange={(event)=>{debounceSearch(event.target.value, debounceTimeout)}}
+      />
       </Header>
+      
 
       {/* Search view for mobiles */}
       <TextField
@@ -129,6 +196,7 @@ const Products = () => {
         }}
         placeholder="Search for items/categories"
         name="search"
+        onChange={(event)=>{debounceSearch(event.target.value, debounceTimeout)}}
       />
        <Grid container>
          <Grid item className="product-grid">
@@ -140,6 +208,7 @@ const Products = () => {
            </Box>
          </Grid>
        </Grid>
+       {append}
       <Footer />
     </div>
   );
