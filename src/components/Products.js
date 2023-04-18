@@ -15,6 +15,8 @@ import Header from "./Header";
 import "./Products.css";
 import ProductCard from "./ProductCard";
 import { Icon } from "@mui/material";
+import Cart from "./Cart";
+import { generateCartItemsFrom } from "./Cart";
 // Definition of Data Structures used
 /**
  * @typedef {Object} Product - Data on product available to buy
@@ -78,6 +80,9 @@ const Products = () => {
   const [notFound, setNotFound] = useState(false);
   const [debounceTimeout, setDebounceTimeout] = useState(0);
   const {enqueueSnackbar} = useSnackbar()
+  const [cartItems, setCartItems] = useState([]);
+  const [completeProductsInformation, setCompleteProductsInformation] = useState([]);
+
 
   const performAPICall = async () => {
     try{
@@ -85,6 +90,7 @@ const Products = () => {
     //console.log(temp.data);
     setIsLoading(false);
     setProductInfo(temp.data);
+    setCompleteProductsInformation(temp.data);
   
     } catch (error) {
       console.log(error);
@@ -144,12 +150,12 @@ const Products = () => {
 
 
 
-
+//fetch products
   useEffect(()=>{
     performAPICall();
-  setIsLoading(true)}
-  , []
-  );
+  setIsLoading(true);
+  fetchCart(localStorage.getItem("token"))},
+  []);
 
   
 
@@ -193,7 +199,17 @@ const Products = () => {
     if (!token) return;
 
     try {
+      console.log(token);
       // TODO: CRIO_TASK_MODULE_CART - Pass Bearer token inside "Authorization" header to get data from "GET /cart" API and return the response data
+      let res = await axios.get(`${config.endpoint}/cart`, {
+         headers: { 'Authorization': `Bearer ${token}`}});
+         console.log(productInfo);
+         //generateCartItemsFrom(res.data,completeProductsInformation);
+         
+         setCartItems(res.data);
+        //  console.log(cartItems)
+
+          
     } catch (e) {
       if (e.response && e.response.status === 400) {
         enqueueSnackbar(e.response.data.message, { variant: "error" });
@@ -210,6 +226,9 @@ const Products = () => {
   };
 
 
+
+
+
   /* // TODO: CRIO_TASK_MODULE_CART - Return if a product already exists in the cart
   /**
    * Return if a product already is present in the cart
@@ -224,6 +243,13 @@ const Products = () => {
    *
    */ 
   const isItemInCart = (items, productId) => {
+    
+    for(let i=0; i<items.length; i++)
+    if(items[i].productId === productId)
+    return true;
+
+    return false;
+    
   };
 
   {/* /**
@@ -271,10 +297,40 @@ const Products = () => {
     qty,
     options = { preventDuplicate: false }
   ) => {
+    // console.log(productId);
+    // console.log(qty);
+    token = localStorage.getItem("token");
+    items=cartItems;
+    products = completeProductsInformation;
+    if(!token)
+    enqueueSnackbar("Login to add item to the cart", {variant:"warning"});
+
+    if(options) {
+    if(isItemInCart(items,productId))
+    enqueueSnackbar("Item already in cart. Use the cart sidebar to update quantity or remove item.", {variant:"warning"});
+    else
+    {
+      axios.post(`${config.endpoint}/cart`, {"productId":productId, "qty":qty},{
+      headers: { 'Authorization': `Bearer ${token}`}}).then((res)=>setCartItems(res.data) ).catch(error => console.log(error));
+      // setCartItems(res.data);
+    }
+    } 
+
+
+    else
+    {
+      axios.post(`${config.endpoint}/cart`, {"productId":productId, "qty":qty},{
+      headers: { 'Authorization': `Bearer ${token}`}}).then((res)=>setCartItems(res.data)).catch(error => console.log(error));
+      // setCartItems(res.data);
+    }
+    
+    
   };
 
-  
+//cart API call
 
+
+//Circular progress, not when products are being fetched
   if(isLoading)
   var append = <div className="loading">
     <CircularProgress style={{margin:"auto", color:"primary"}}/>
@@ -284,9 +340,10 @@ const Products = () => {
   else if(notFound)
   var append= <div className="loading"><SentimentDissatisfied />
   <p>No products found</p></div>
+
   else
   var append = <Grid container spacing={2} padding={2}>
-  <ProductCard product={productInfo} />
+  <ProductCard product={productInfo} handleAddToCart={addToCart}/>
  </Grid>
   
 
@@ -313,12 +370,8 @@ const Products = () => {
       </Header>
       
 
-      {/* Search view for mobiles */}
-      {/* return (
-    <div>
-      <Header>
-
-      </Header> */}
+     { /* Search view for mobiles */ }
+    
 
       <TextField
         className="search-mobile"
@@ -335,8 +388,7 @@ const Products = () => {
         name="search"
         onChange={(event)=>{debounceSearch(event.target.value, debounceTimeout)}}
       />
-       <Grid container>
-         <Grid item className="product-grid">
+      {localStorage.getItem("username")? <Grid container><Grid container md={9} xs={12}><Grid container ><Grid item className="product-grid">
            <Box className="hero">
              <p className="hero-heading">
                India’s <span className="hero-highlight">FASTEST DELIVERY</span>{" "}
@@ -346,6 +398,34 @@ const Products = () => {
          </Grid>
        </Grid>
        {append}
+       </Grid>
+       <Grid item xs={12} md={3} className="cartGrid">
+       {/* {console.log(cartItems)} */}
+       {(localStorage.getItem("token"))? <Cart cartData={cartItems} handleQuantity={addToCart} products={completeProductsInformation} items={generateCartItemsFrom(cartItems, completeProductsInformation)}/>:null}
+       </Grid>
+       </Grid>:<Grid container> <Grid container  ><Grid item className="product-grid">
+           <Box className="hero">
+             <p className="hero-heading">
+               India’s <span className="hero-highlight">FASTEST DELIVERY</span>{" "}
+               to your door step
+             </p>
+           </Box>
+         </Grid>
+       </Grid>
+       {append}
+       </Grid> }
+       {/* <Grid container>
+         <Grid item className="product-grid">
+           <Box className="hero">
+             <p className="hero-heading">
+               India’s <span className="hero-highlight">FASTEST DELIVERY</span>{" "}
+               to your door step
+             </p>
+           </Box>
+         </Grid>
+       </Grid> */}
+       {/* {append} */}
+       
       <Footer />
     </div>
   );

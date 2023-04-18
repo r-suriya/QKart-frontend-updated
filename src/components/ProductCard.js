@@ -14,8 +14,9 @@ import "./ProductCard.css";
 
 import Grid from '@mui/material/Grid';
 
-const ProductCard = ({ product, handleAddToCart }) => {
-  console.log(product)
+const ProductCard = ({ product, handleAddToCart}) => {
+  /* console.log(product)
+  console.log("dyud") */
   /* let temp = {"name":"Tan Leatherette Weekender Duffle",
   "category":"Fashion",
   "cost":150,
@@ -52,7 +53,7 @@ const ProductCard = ({ product, handleAddToCart }) => {
         </CardContent>
   
         <CardActions className="card-actions">
-          <Button className="card-button"><AddShoppingCartOutlined/> Add to cart</Button>
+          <Button className="card-button" onClick={()=>handleAddToCart("","","",productDetail._id,1, true)}><AddShoppingCartOutlined/> Add to cart</Button>
         </CardActions>
   
   

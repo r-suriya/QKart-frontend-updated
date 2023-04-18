@@ -10,6 +10,7 @@ import React from "react";
 import { useHistory } from "react-router-dom";
 import "./Cart.css";
 
+
 // Definition of Data Structures used
 /**
  * @typedef {Object} Product - Data on product available to buy
@@ -47,8 +48,28 @@ import "./Cart.css";
  *    Array of objects with complete data on products in cart
  *
  */
+
+
 export const generateCartItemsFrom = (cartData, productsData) => {
+  var cartItemsDetails = [];
+  console.log(cartData.length)
+  cartData.forEach((cartdataItem)=>{
+    
+     for(let j=0; j< productsData.length; j++)
+     {
+       if(productsData[j]._id === cartdataItem.productId){
+        productsData[j].qty = cartdataItem.qty;
+       cartItemsDetails.push(productsData[j]);
+       /* cartItemsDetails[i].qty = x.qty; */
+       /* console.log(cartItemsDetails); */
+       }
+     }
+   })
+  
+  return cartItemsDetails;
 };
+
+
 
 /**
  * Get the total value of all products added to the cart
@@ -61,6 +82,10 @@ export const generateCartItemsFrom = (cartData, productsData) => {
  *
  */
 export const getTotalCartValue = (items = []) => {
+  let totalCost =0;
+  for(let i=0; i< items.length; i++)
+  totalCost += items[i].qty * items[i].cost;
+  return totalCost;
 };
 
 
@@ -82,16 +107,17 @@ const ItemQuantity = ({
   value,
   handleAdd,
   handleDelete,
+  tempProductId
 }) => {
   return (
     <Stack direction="row" alignItems="center">
-      <IconButton size="small" color="primary" onClick={handleDelete}>
+      <IconButton size="small" color="primary" onClick={()=>{handleDelete("","","",tempProductId,value-1,false)}}>
         <RemoveOutlined />
       </IconButton>
       <Box padding="0.5rem" data-testid="item-qty">
         {value}
       </Box>
-      <IconButton size="small" color="primary" onClick={handleAdd}>
+      <IconButton size="small" color="primary" onClick={()=>{handleAdd("","","",tempProductId,value+1,false)}}>
         <AddOutlined />
       </IconButton>
     </Stack>
@@ -114,10 +140,10 @@ const ItemQuantity = ({
  */
 const Cart = ({
   products,
-  items = [],
-  handleQuantity,
+  items ,
+  handleQuantity ,
 }) => {
-
+  const history = useHistory();
   if (!items.length) {
     return (
       <Box className="cart empty">
@@ -128,11 +154,50 @@ const Cart = ({
       </Box>
     );
   }
+  
 
   return (
     <>
       <Box className="cart">
         {/* TODO: CRIO_TASK_MODULE_CART - Display view for each cart item with non-zero quantity */}
+    {items.map(productDetail => {
+      return(    
+        
+<Box display="flex" alignItems="flex-start" padding="1rem">
+    <Box className="image-container">
+        <img
+            // Add product image
+            src={productDetail.image}
+            // Add product name as alt eext
+            alt={productDetail.name}
+            width="100%"
+            height="100%"
+        />
+    </Box>
+    <Box
+        display="flex"
+        flexDirection="column"
+        justifyContent="space-between"
+        height="6rem"
+        paddingX="1rem"
+    >
+        <div>{productDetail.name}</div>
+        <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+        >
+        <ItemQuantity value={productDetail.qty} tempProductId={productDetail._id} handleAdd={handleQuantity} handleDelete={handleQuantity}
+        // Add required props by checking implementation
+        />
+        <Box padding="0.5rem" fontWeight="700">
+            ${productDetail.cost}
+        </Box>
+        </Box>
+    </Box>
+</Box> )})}
+        
+
         <Box
           padding="1rem"
           display="flex"
@@ -159,13 +224,16 @@ const Cart = ({
             variant="contained"
             startIcon={<ShoppingCart />}
             className="checkout-btn"
+            onClick={()=>history.push("/checkout")}
           >
             Checkout
           </Button>
         </Box>
       </Box>
     </>
-  );
+      );
 };
+
+
 
 export default Cart;

@@ -13,8 +13,9 @@ const Header = ({ children, hasHiddenAuthButtons }) => {
 
 const [isLoggedOut, setIsLoggedOut] = useState(false);
 
-if(isLoggedOut)
+if(isLoggedOut){
 localStorage.clear();
+window.location.reload();}
 
   if(hasHiddenAuthButtons)
     return (

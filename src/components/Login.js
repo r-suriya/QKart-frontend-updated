@@ -43,7 +43,7 @@ const Login = () => {
   const [userInformation, setUserInformation] = useState({username: "", password: ""});
   const history = useHistory();
 
-
+//rediret to products poage on login
   const login = async (formData) => {
     if(validateInput(formData)){
 
@@ -125,6 +125,7 @@ const Login = () => {
     window.localStorage.setItem('token', token);
     window.localStorage.setItem('username', username);
     window.localStorage.setItem('balance', balance);
+    console.log(token);
   };
 
   return (

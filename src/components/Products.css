@@ -50,7 +50,7 @@
 }
 
 .search-desktop {
-  display:block !important;
+  display:none !important;
   width: 30% !important;
   text-align: center;
 }
@@ -72,4 +72,8 @@
   .search-desktop {
     display: block !important;
   }
+}
+
+.cartGrid {
+  background-color: #E9F5E1;
 }
