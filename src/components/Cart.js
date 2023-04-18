@@ -162,6 +162,7 @@ const Cart = ({
   products,
   items ,
   handleQuantity ,
+  isReadOnly
 }) => {
   const history = useHistory();
   if (!items.length) {
@@ -194,27 +195,49 @@ const Cart = ({
             height="100%"
         />
     </Box>
-    <Box
-        display="flex"
-        flexDirection="column"
-        justifyContent="space-between"
-        height="6rem"
-        paddingX="1rem"
-    >
-        <div>{productDetail.name}</div>
-        <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-        >
-        <ItemQuantity value={productDetail.qty} tempProductId={productDetail._id} handleAdd={handleQuantity} handleDelete={handleQuantity}
-        // Add required props by checking implementation
-        />
-        <Box padding="0.5rem" fontWeight="700">
-            ${productDetail.cost}
-        </Box>
-        </Box>
-    </Box>
+    {isReadOnly?
+          <Box
+          display="flex"
+          flexDirection="column"
+          justifyContent="space-between"
+          height="6rem"
+          paddingX="1rem"
+          >
+          <div>{productDetail.name}</div>
+          <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+          >
+            <Box padding="0.5rem" data-testid="item-qty"> Qty: {productDetail.qty}  </Box>
+            <Box padding="0.5rem" fontWeight="700"> ${productDetail.cost} </Box>
+          </Box>
+          </Box>
+      
+    :
+    
+            <Box
+              display="flex"
+              flexDirection="column"
+              justifyContent="space-between"
+              height="6rem"
+              paddingX="1rem"
+             >
+              <div>{productDetail.name}</div>
+              <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+              >
+              <ItemQuantity value={productDetail.qty} tempProductId={productDetail._id} handleAdd={handleQuantity} handleDelete={handleQuantity}
+              // Add required props by checking implementation
+              />
+              <Box padding="0.5rem" fontWeight="700">
+                  ${productDetail.cost}
+              </Box>
+              </Box>
+            </Box>}
+    
 </Box> )})}
         
 
@@ -237,7 +260,7 @@ const Cart = ({
             ${getTotalCartValue(items)}
           </Box>
         </Box>
-
+        {isReadOnly? null :
         <Box display="flex" justifyContent="flex-end" className="cart-footer">
           <Button
             color="primary"
@@ -248,8 +271,27 @@ const Cart = ({
           >
             Checkout
           </Button>
+        </Box>}
+      </Box>
+      {isReadOnly? 
+      <Box padding="1rem" className="cart">
+        <Box><h2> Order Details</h2></Box>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <Box alignSelf="center">
+            <p>Products</p> <p> Subtotal</p> <p>Shipping Charges</p> <h3> Total</h3>
+          </Box>
+          <Box alignSelf="center" justifyItems="flex-end">
+            <p>{items.length}</p> <p> ${getTotalCartValue(items)}</p> <p> $0</p> <h3> ${getTotalCartValue(items)}</h3>
+          </Box>
         </Box>
       </Box>
+      :
+      null 
+      }
     </>
       );
 };
