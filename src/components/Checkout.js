@@ -46,9 +46,7 @@ import Header from "./Header";
 
 const Checkout = () => {
 
-
-
-
+  
 
 
 
@@ -98,6 +96,7 @@ const Checkout = () => {
           </Box>
         </Grid>
         <Grid item xs={12} md={3} bgcolor="#E9F5E1">
+          
           {/* <Cart isReadOnly products={products} items={items} /> */}
         </Grid>
       </Grid>
